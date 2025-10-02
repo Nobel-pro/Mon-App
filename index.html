@@ -1,0 +1,619 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedConsult - Plateforme de Téléconsultation</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c6bac;
+            --secondary: #4ca1af;
+            --accent: #38b2ac;
+            --light: #f8f9fa;
+            --dark: #343a40;
+        }
+        
+        body {
+            background-color: #f5f7f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            color: var(--primary) !important;
+        }
+        
+        .hero-section {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 5rem 0;
+            margin-bottom: 3rem;
+        }
+        
+        .card-feature {
+            transition: transform 0.3s;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .card-feature:hover {
+            transform: translateY(-5px);
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+        
+        .btn-primary:hover {
+            background-color: #245a94;
+            border-color: #245a94;
+        }
+        
+        .section-title {
+            position: relative;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .section-title:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: var(--secondary);
+        }
+        
+        .consultation-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .doctor-card {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s;
+        }
+        
+        .doctor-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .payment-option {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .payment-option:hover, .payment-option.selected {
+            border-color: var(--primary);
+            background-color: rgba(44, 107, 172, 0.05);
+        }
+        
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 3rem 0;
+        }
+        
+        #jitsi-container {
+            width: 100%;
+            height: 500px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+    </style>
+    <!-- Inclusion de l'API Jitsi -->
+    <script src='https://meet.jit.si/external_api.js'></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-clinic-medical me-2"></i>MedConsult
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#">Accueil</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Consultation</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Médecins</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Tarifs</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Contact</a>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <a href="#" class="btn btn-outline-primary me-2">Connexion</a>
+                    <a href="#" class="btn btn-primary">Inscription</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1 class="display-4 fw-bold mb-4">Consultations médicales en ligne</h1>
+                    <p class="lead mb-4">Consultez un médecin certifié depuis chez vous, à tout moment, 7j/7 et 24h/24.</p>
+                    <a href="#consultation" class="btn btn-light btn-lg px-4">Commencer une consultation</a>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <img src="https://placehold.co/600x400/2c6bac/FFFFFF?text=MedConsult" alt="Téléconsultation médicale" class="img-fluid rounded-3">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-5">
+        <div class="container">
+            <h2 class="text-center section-title">Pourquoi choisir MedConsult ?</h2>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card card-feature h-100 text-center p-4">
+                        <div class="feature-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <h3>Gain de temps</h3>
+                        <p>Plus de déplacement ni d'attente en salle d'attente. Consultez en quelques minutes.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card card-feature h-100 text-center p-4">
+                        <div class="feature-icon">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <h3>Confidentialité</h3>
+                        <p>Vos données médicales sont cryptées et stockées de manière sécurisée.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card card-feature h-100 text-center p-4">
+                        <div class="feature-icon">
+                            <i class="fas fa-stethoscope"></i>
+                        </div>
+                        <h3>Médecins certifiés</h3>
+                        <p>Tous nos médecins sont certifiés et expérimentés dans leur spécialité.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Consultation Section -->
+    <section id="consultation" class="py-5 bg-light">
+        <div class="container">
+            <h2 class="text-center section-title">Commencez votre consultation</h2>
+            
+            <div class="consultation-container">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4 class="mb-4">Sélectionnez un médecin</h4>
+                        
+                        <div class="doctor-card card mb-3">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <img src="https://placehold.co/100x100/2c6bac/FFFFFF?text=DR" alt="Docteur" class="rounded-circle me-3">
+                                    <div>
+                                        <h5 class="card-title">Dr. Jean Kamana</h5>
+                                        <p class="card-text mb-1">Médecin généraliste</p>
+                                        <div class="text-warning mb-2">
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star-half-alt"></i>
+                                            <span class="text-dark">(4.5)</span>
+                                        </div>
+                                        <button class="btn btn-sm btn-outline-primary select-doctor" data-doctor-id="1">Sélectionner</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="doctor-card card mb-3">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <img src="https://placehold.co/100x100/2c6bac/FFFFFF?text=DR" alt="Docteur" class="rounded-circle me-3">
+                                    <div>
+                                        <h5 class="card-title">Dr. Marie Akeza</h5>
+                                        <p class="card-text mb-1">Pédiatre</p>
+                                        <div class="text-warning mb-2">
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="far fa-star"></i>
+                                            <span class="text-dark">(4.0)</span>
+                                        </div>
+                                        <button class="btn btn-sm btn-outline-primary select-doctor" data-doctor-id="2">Sélectionner</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <h4 class="mb-4">Choisissez un mode de paiement</h4>
+                        
+                        <div class="payment-option" data-method="ecocash">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="paymentMethod" id="ecocash">
+                                <label class="form-check-label d-flex align-items-center" for="ecocash">
+                                    <img src="https://placehold.co/30x30/2c6bac/FFFFFF?text=E" alt="Ecocash" class="me-2">
+                                    <span>Payer avec EcoCash</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="payment-option" data-method="lumicash">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="paymentMethod" id="lumicash">
+                                <label class="form-check-label d-flex align-items-center" for="lumicash">
+                                    <img src="https://placehold.co/30x30/2c6bac/FFFFFF?text=L" alt="Lumicash" class="me-2">
+                                    <span>Payer avec LumiCash</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="payment-option" data-method="card">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="paymentMethod" id="card">
+                                <label class="form-check-label d-flex align-items-center" for="card">
+                                    <i class="fas fa-credit-card me-2"></i>
+                                    <span>Carte bancaire</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <h5>Résumé de paiement</h5>
+                            <table class="table">
+                                <tr>
+                                    <td>Consultation</td>
+                                    <td class="text-end">15 000 FBu</td>
+                                </tr>
+                                <tr>
+                                    <td>Frais de service</td>
+                                    <td class="text-end">1 000 FBu</td>
+                                </tr>
+                                <tr class="fw-bold">
+                                    <td>Total</td>
+                                    <td class="text-end">16 000 FBu</td>
+                                </tr>
+                            </table>
+                            
+                            <button class="btn btn-primary w-100" id="start-consultation" disabled>Commencer la consultation</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="consultation-container d-none" id="video-consultation">
+                <h4 class="mb-4">Consultation en cours avec <span id="doctor-name">Dr. Jean Kamana</span></h4>
+                
+                <div id="jitsi-container"></div>
+                
+                <div class="d-flex justify-content-center">
+                    <button class="btn btn-danger me-3" id="end-call"><i class="fas fa-phone-slash me-2"></i>Terminer l'appel</button>
+                    <button class="btn btn-outline-secondary" id="toggle-screen-share"><i class="fas fa-desktop me-2"></i>Partager l'écran</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="py-5">
+        <div class="container">
+            <h2 class="text-center section-title">Questions fréquentes</h2>
+            
+            <div class="accordion" id="faqAccordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                            Comment fonctionne la téléconsultation ?
+                        </button>
+                    </h2>
+                    <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            Après avoir choisi un médecin et effectué le paiement, vous serez connecté à une visioconférence sécurisée avec le médecin. La consultation dure généralement entre 15 et 30 minutes.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                            Est-ce que les consultations sont remboursées ?
+                        </button>
+                    </h2>
+                    <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            MedConsult est partenaire avec plusieurs mutuelles de santé. Renseignez-vous auprès de votre assureur pour connaître les conditions de remboursement.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                            Comment payer avec EcoCash ou LumiCash ?
+                        </button>
+                    </h2>
+                    <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            Après avoir sélectionné EcoCash ou LumiCash, vous recevrez un code USSD à composer sur votre téléphone ou un lien de paiement qui s'ouvrira dans l'application mobile de votre opérateur.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h5>MedConsult</h5>
+                    <p>Plateforme de téléconsultation médicale n°1 au Burundi</p>
+                    <div class="d-flex">
+                        <a href="#" class="text-white me-3"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-white me-3"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-white me-3"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-4 mb-4">
+                    <h5>Liens rapides</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-white text-decoration-none">Accueil</a></li>
+                        <li><a href="#" class="text-white text-decoration-none">Consultation</a></li>
+                        <li><a href="#" class="text-white text-decoration-none">Médecins</a></li>
+                        <li><a href="#" class="text-white text-decoration-none">Tarifs</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-4 mb-4">
+                    <h5>Informations</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-white text-decoration-none">À propos</a></li>
+                        <li><a href="#" class="text-white text-decoration-none">FAQ</a></li>
+                        <li><a href="#" class="text-white text-decoration-none">Politique de confidentialité</a></li>
+                        <li><a href="#" class="text-white text-decoration-none">Conditions d'utilisation</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-4 mb-4">
+                    <h5>Contact</h5>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-map-marker-alt me-2"></i> Bujumbura, Burundi</li>
+                        <li><i class="fas fa-phone me-2"></i> +257 12 34 56</li>
+                        <li><i class="fas fa-envelope me-2"></i> info@medconsult.bi</li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="bg-light">
+            <div class="text-center">
+                <p class="mb-0">&copy; 2023 MedConsult. Tous droits réservés.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Variable globale pour l'API Jitsi
+        let jitsiApi = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Gestion de la sélection des médecins
+            const doctorButtons = document.querySelectorAll('.select-doctor');
+            const startConsultationBtn = document.getElementById('start-consultation');
+            let selectedDoctor = null;
+            
+            doctorButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Retirer la sélection précédente
+                    doctorButtons.forEach(btn => {
+                        btn.classList.remove('btn-primary');
+                        btn.classList.add('btn-outline-primary');
+                    });
+                    
+                    // Ajouter la sélection actuelle
+                    this.classList.remove('btn-outline-primary');
+                    this.classList.add('btn-primary');
+                    
+                    selectedDoctor = this.getAttribute('data-doctor-id');
+                    
+                    // Mettre à jour le nom du docteur dans la section vidéo
+                    const doctorName = this.closest('.doctor-card').querySelector('.card-title').textContent;
+                    document.getElementById('doctor-name').textContent = doctorName;
+                    
+                    updateStartButtonState();
+                });
+            });
+            
+            // Gestion de la sélection des méthodes de paiement
+            const paymentOptions = document.querySelectorAll('.payment-option');
+            let selectedPaymentMethod = null;
+            
+            paymentOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    // Retirer la sélection précédente
+                    paymentOptions.forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    
+                    // Ajouter la sélection actuelle
+                    this.classList.add('selected');
+                    
+                    // Cocher le radio button correspondant
+                    const radio = this.querySelector('input[type="radio"]');
+                    radio.checked = true;
+                    
+                    selectedPaymentMethod = this.getAttribute('data-method');
+                    updateStartButtonState();
+                });
+            });
+            
+            // Mettre à jour l'état du bouton de démarrage
+            function updateStartButtonState() {
+                if (selectedDoctor && selectedPaymentMethod) {
+                    startConsultationBtn.disabled = false;
+                } else {
+                    startConsultationBtn.disabled = true;
+                }
+            }
+            
+            // Démarrer la consultation
+            startConsultationBtn.addEventListener('click', function() {
+                // Simulation de paiement (dans une vraie application, cela serait géré par le backend)
+                simulatePayment().then(success => {
+                    if (success) {
+                        // Cacher la sélection et afficher la vidéo
+                        document.querySelector('.consultation-container:not(#video-consultation)').classList.add('d-none');
+                        document.getElementById('video-consultation').classList.remove('d-none');
+                        
+                        // Initialiser Jitsi Meet
+                        initJitsi();
+                    } else {
+                        alert('Le paiement a échoué. Veuillez réessayer.');
+                    }
+                });
+            });
+            
+            // Simuler le processus de paiement
+            function simulatePayment() {
+                return new Promise(resolve => {
+                    // Simuler un délai de traitement
+                    setTimeout(() => {
+                        // Simuler une réussite dans 90% des cas
+                        resolve(Math.random() < 0.9);
+                    }, 2000);
+                });
+            }
+            
+            // Initialiser Jitsi Meet
+            function initJitsi() {
+                const domain = 'meet.jit.si';
+                const options = {
+                    roomName: 'MedConsult-' + Date.now(),
+                    width: '100%',
+                    height: '100%',
+                    parentNode: document.querySelector('#jitsi-container'),
+                    userInfo: {
+                        displayName: 'Patient MedConsult'
+                    },
+                    configOverwrite: {
+                        startWithAudioMuted: false,
+                        startWithVideoMuted: false,
+                        disableModeratorIndicator: false,
+                        enableWelcomePage: false,
+                        enableClosePage: false,
+                        prejoinPageEnabled: false
+                    },
+                    interfaceConfigOverwrite: {
+                        TOOLBAR_BUTTONS: [
+                            'microphone', 'camera', 'closedcaptions', 'desktop', 'fullscreen',
+                            'fodeviceselection', 'hangup', 'profile', 'chat', 'recording',
+                            'livestreaming', 'etherpad', 'sharedvideo', 'settings', 'raisehand',
+                            'videoquality', 'filmstrip', 'invite', 'feedback', 'stats', 'shortcuts',
+                            'tileview', 'videobackgroundblur', 'download', 'help', 'mute-everyone',
+                            'mute-video-everyone', 'security'
+                        ],
+                        SETTINGS_SECTIONS: ['devices', 'language', 'moderator', 'profile', 'calendar'],
+                        SHOW_JITSI_WATERMARK: false,
+                        SHOW_WATERMARK_FOR_GUESTS: false,
+                        SHOW_BRAND_WATERMARK: false,
+                        BRAND_WATERMARK_LINK: '',
+                        SHOW_POWERED_BY: false,
+                        GENERATE_ROOMNAMES_ON_WELCOME_PAGE: false,
+                        DISPLAY_WELCOME_PAGE_CONTENT: false
+                    }
+                };
+                
+                try {
+                    jitsiApi = new JitsiMeetExternalAPI(domain, options);
+                    
+                    // Gestion des événements Jitsi
+                    jitsiApi.addEventListener('videoConferenceJoined', () => {
+                        console.log('Rejoint la conférence');
+                    });
+                    
+                    jitsiApi.addEventListener('participantJoined', (participant) => {
+                        console.log('Participant rejoint:', participant);
+                    });
+                    
+                    jitsiApi.addEventListener('participantLeft', (participant) => {
+                        console.log('Participant quitté:', participant);
+                    });
+                    
+                    jitsiApi.addEventListener('audioMuteStatusChanged', (data) => {
+                        console.log('Audio mute status changed:', data.muted);
+                    });
+                    
+                    jitsiApi.addEventListener('videoMuteStatusChanged', (data) => {
+                        console.log('Video mute status changed:', data.muted);
+                    });
+                    
+                } catch (error) {
+                    console.error('Erreur lors de l\'initialisation de Jitsi:', error);
+                    alert('Erreur lors de l\'initialisation de la vidéoconférence. Veuillez réessayer.');
+                }
+            }
+            
+            // Gestion de la fin d'appel
+            document.getElementById('end-call').addEventListener('click', function() {
+                if (confirm('Terminer la consultation?')) {
+                    if (jitsiApi) {
+                        jitsiApi.executeCommand('hangup');
+                    }
+                    // Revenir à l'interface de sélection
+                    document.querySelector('.consultation-container:not(#video-consultation)').classList.remove('d-none');
+                    document.getElementById('video-consultation').classList.add('d-none');
+                }
+            });
+            
+            // Gestion du partage d'écran
+            document.getElementById('toggle-screen-share').addEventListener('click', function() {
+                if (jitsiApi) {
+                    jitsiApi.executeCommand('toggleShareScreen');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
