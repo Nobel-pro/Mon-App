@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedConsult - Téléconférence</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://meet.jit.si/external_api.js"></script>
+    <style>
+        :root {
+            --primary: #2c6bac;
+            --secondary: #4ca1af;
+            --accent: #38b2ac;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+        }
+        
+        body {
+            background-color: #1a1a1a;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: white;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .conference-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        
+        .conference-header {
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #333;
+        }
+        
+        .conference-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .conference-timer {
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            margin-left: 1rem;
+            font-weight: 600;
+        }
+        
+        .conference-main {
+            flex: 1;
+            display: flex;
+            position: relative;
+        }
+        
+        #jitsi-container {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .conference-sidebar {
+            width: 300px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-left: 1px solid #333;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .participants-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .participant-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+        }
+        
+        .participant-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.75rem;
+            font-weight: bold;
+        }
+        
+        .participant-info {
+            flex: 1;
+        }
+        
+        .participant-name {
+            font-weight: 600;
+            margin-bottom: 0.1rem;
+        }
+        
+        .participant-role {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+        
+        .participant-status {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--success);
+            margin-left: 0.5rem;
+        }
+        
+        .sidebar-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .sidebar-title {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.75rem;
+            opacity: 0.7;
+        }
+        
+        .conference-controls {
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-top: 1px solid #333;
+        }
+        
+        .control-button {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+        }
+        
+        .control-button:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .control-button.active {
+            background-color: white;
+            color: var(--primary);
+        }
+        
+        .control-button.danger {
+            background-color: var(--danger);
+        }
+        
+        .control-button.danger:hover {
+            background-color: #c82333;
+        }
+        
+        .control-button.large {
+            width: 60px;
+            height: 60px;
+        }
+        
+        .chat-container {
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 1rem;
+            display: flex;
+            flex-direction: column;
+            height: 300px;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+        }
+        
+        .chat-message {
+            margin-bottom: 0.75rem;
+            padding: 0.5rem;
+            border-radius: 5px;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .message-sender {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            font-size: 0.9rem;
+        }
+        
+        .message-content {
+            font-size: 0.9rem;
+        }
+        
+        .chat-input {
+            display: flex;
+        }
+        
+        .chat-input input {
+            flex: 1;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            color: white;
+            margin-right: 0.5rem;
+        }
+        
+        .chat-input button {
+            background-color: var(--primary);
+            border: none;
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            color: white;
+            cursor: pointer;
+        }
+        
+        .waiting-room {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .waiting-content {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            max-width: 500px;
+        }
+        
+        .waiting-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+        
+        .consultation-info-card {
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .info-label {
+            opacity: 0.7;
+        }
+        
+        .info-value {
+            font-weight: 600;
+        }
+        
+        @media (max-width: 768px) {
+            .conference-sidebar {
+                position: absolute;
+                right: -300px;
+                top: 0;
+                bottom: 0;
+                z-index: 100;
+                transition: right 0.3s;
+            }
+            
+            .conference-sidebar.open {
+                right: 0;
+            }
+            
+            .control-button {
+                width: 45px;
+                height: 45px;
+                margin: 0 0.25rem;
+            }
+            
+            .control-button.large {
+                width: 50px;
+                height: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="conference-container">
+        <div class="conference-header">
+            <div class="conference-info">
+                <h3 class="mb-0">Consultation MedConsult</h3>
+                <div class="conference-timer" id="conference-timer">00:00:00</div>
+            </div>
+            <div>
+                <button class="btn btn-outline-light btn-sm me-2" id="toggle-sidebar">
+                    <i class="fas fa-users"></i>
+                </button>
+                <button class="btn btn-outline-light btn-sm">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="conference-main">
+            <div id="jitsi-container"></div>
+            
+            <div class="conference-sidebar" id="conference-sidebar">
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Participants</div>
+                    <div class="participants-list" id="participants-list">
+                        <div class="participant-item">
+                            <div class="participant-avatar">DK</div>
+                            <div class="participant-info">
+                                <div class="participant-name">Dr. Jean Kamana</div>
+                                <div class="participant-role">Médecin</div>
+                            </div>
+                            <div class="participant-status"></div>
+                        </div>
+                        <div class="participant-item">
+                            <div class="participant-avatar">EN</div>
+                            <div class="participant-info">
+                                <div class="participant-name">Eric Niyongabo</div>
+                                <div class="participant-role">Patient</div>
+                            </div>
+                            <div class="participant-status"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Détails de la consultation</div>
+                    <div class="consultation-info-card">
+                        <div class="info-item">
+                            <span class="info-label">Date:</span>
+                            <span class="info-value" id="consultation-date">25 Oct 2023</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Heure:</span>
+                            <span class="info-value" id="consultation-time">10:00 - 10:30</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Motif:</span>
+                            <span class="info-value">Consultation générale</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Status:</span>
+                            <span class="info-value">En cours</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Chat</div>
+                    <div class="chat-container">
+                        <div class="chat-messages" id="chat-messages">
+                            <div class="chat-message">
+                                <div class="message-sender">Dr. Kamana</div>
+                                <div class="message-content">Bonjour Eric, comment allez-vous aujourd'hui?</div>
+                            </div>
+                            <div class="chat-message">
+                                <div class="message-sender">Eric Niyongabo</div>
+                                <div class="message-content">Bonjour Docteur, je me sens un peu fatigué depuis quelques jours.</div>
+                            </div>
+                        </div>
+                        <div class="chat-input">
+                            <input type="text" placeholder="Tapez votre message...">
+                            <button><i class="fas fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="conference-controls">
+            <button class="control-button" id="toggle-audio">
+                <i class="fas fa-microphone"></i>
+            </button>
+            <button class="control-button" id="toggle-video">
+                <i class="fas fa-video"></i>
+            </button>
+            <button class="control-button" id="toggle-screen-share">
+                <i class="fas fa-desktop"></i>
+            </button>
+            <button class="control-button large" id="end-call">
+                <i class="fas fa-phone-slash"></i>
+            </button>
+            <button class="control-button" id="toggle-chat">
+                <i class="fas fa-comment"></i>
+            </button>
+            <button class="control-button" id="toggle-participants">
+                <i class="fas fa-users"></i>
+            </button>
+            <button class="control-button" id="record-call">
+                <i class="fas fa-record-vinyl"></i>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Waiting Room (s'affiche avant que le docteur ne rejoigne) -->
+    <div class="waiting-room" id="waiting-room">
+        <div class="waiting-content">
+            <div class="waiting-icon">
+                <i class="fas fa-clock"></i>
+            </div>
+            <h3>En attente du docteur</h3>
+            <p>Votre consultation avec le Dr. Jean Kamana débutera bientôt. Veuillez patienter.</p>
+            <div class="spinner-border text-primary mt-3" role="status">
+                <span class="visually-hidden">Chargement...</span>
+            </div>
+            <div class="mt-4">
+                <button class="btn btn-danger" id="cancel-waiting">
+                    <i class="fas fa-times me-2"></i>Annuler l'appel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configuration de la conférence
+            const domain = 'meet.jit.si';
+            const options = {
+                roomName: 'MedConsult-' + new Date().getTime(),
+                width: '100%',
+                height: '100%',
+                parentNode: document.getElementById('jitsi-container'),
+                userInfo: {
+                    displayName: 'Patient Eric Niyongabo'
+                },
+                configOverwrite: {
+                    startWithAudioMuted: false,
+                    startWithVideoMuted: false,
+                    disableModeratorIndicator: false,
+                    enableWelcomePage: false,
+                    enableClosePage: false,
+                    prejoinPageEnabled: false
+                },
+                interfaceConfigOverwrite: {
+                    TOOLBAR_BUTTONS: [
+                        'microphone', 'camera', 'closedcaptions', 'desktop', 'fullscreen',
+                        'fodeviceselection', 'hangup', 'profile', 'chat', 'recording',
+                        'livestreaming', 'etherpad', 'sharedvideo', 'settings', 'raisehand',
+                        'videoquality', 'filmstrip', 'invite', 'feedback', 'stats', 'shortcuts',
+                        'tileview', 'videobackgroundblur', 'download', 'help', 'mute-everyone',
+                        'mute-video-everyone', 'security'
+                    ],
+                    SETTINGS_SECTIONS: ['devices', 'language', 'moderator', 'profile', 'calendar'],
+                    SHOW_JITSI_WATERMARK: false,
+                    SHOW_WATERMARK_FOR_GUESTS: false,
+                    SHOW_BRAND_WATERMARK: false,
+                    BRAND_WATERMARK_LINK: '',
+                    SHOW_POWERED_BY: false,
+                    GENERATE_ROOMNAMES_ON_WELCOME_PAGE: false,
+                    DISPLAY_WELCOME_PAGE_CONTENT: false
+                }
+            };
+            
+            // Initialisation de l'API Jitsi Meet
+            const api = new JitsiMeetExternalAPI(domain, options);
+            
+            // Gestion des événements
+            api.addEventListener('videoConferenceJoined', () => {
+                console.log('Rejoint la conférence');
+                document.getElementById('waiting-room').style.display = 'none';
+                startTimer();
+            });
+            
+            api.addEventListener('participantJoined', (participant) => {
+                console.log('Participant rejoint:', participant);
+                if (participant.displayName.includes('Dr.')) {
+                    document.getElementById('waiting-room').style.display = 'none';
+                }
+            });
+            
+            api.addEventListener('participantLeft', (participant) => {
+                console.log('Participant quitté:', participant);
+                if (participant.displayName.includes('Dr.')) {
+                    alert('Le docteur a quitté la consultation. La session va se terminer.');
+                    setTimeout(() => {
+                        window.location.href = 'consultation-feedback.html';
+                    }, 3000);
+                }
+            });
+            
+            api.addEventListener('audioMuteStatusChanged', (data) => {
+                const button = document.getElementById('toggle-audio');
+                if (data.muted) {
+                    button.classList.remove('active');
+                } else {
+                    button.classList.add('active');
+                }
+            });
+            
+            api.addEventListener('videoMuteStatusChanged', (data) => {
+                const button = document.getElementById('toggle-video');
+                if (data.muted) {
+                    button.classList.remove('active');
+                } else {
+                    button.classList.add('active');
+                }
+            });
+            
+            // Contrôles de l'interface
+            document.getElementById('toggle-audio').addEventListener('click', () => {
+                api.executeCommand('toggleAudio');
+            });
+            
+            document.getElementById('toggle-video').addEventListener('click', () => {
+                api.executeCommand('toggleVideo');
+            });
+            
+            document.getElementById('toggle-screen-share').addEventListener('click', () => {
+                api.executeCommand('toggleShareScreen');
+            });
+            
+            document.getElementById('end-call').addEventListener('click', () => {
+                if (confirm('Terminer la consultation?')) {
+                    api.executeCommand('hangup');
+                    setTimeout(() => {
+                        window.location.href = 'consultation-feedback.html';
+                    }, 1000);
+                }
+            });
+            
+            document.getElementById('toggle-chat').addEventListener('click', () => {
+                api.executeCommand('toggleChat');
+            });
+            
+            document.getElementById('toggle-participants').addEventListener('click', () => {
+                api.executeCommand('toggleParticipantsPane');
+            });
+            
+            document.getElementById('record-call').addEventListener('click', () => {
+                api.executeCommand('toggleRecording');
+            });
+            
+            document.getElementById('toggle-sidebar').addEventListener('click', () => {
+                document.getElementById('conference-sidebar').classList.toggle('open');
+            });
+            
+            document.getElementById('cancel-waiting').addEventListener('click', () => {
+                if (confirm('Annuler l\'appel?')) {
+                    api.executeCommand('hangup');
+                    window.location.href = 'index.html';
+                }
+            });
+            
+            // Timer de la conférence
+            let startTime;
+            let timerInterval;
+            
+            function startTimer() {
+                startTime = new Date();
+                timerInterval = setInterval(updateTimer, 1000);
+            }
+            
+            function updateTimer() {
+                const now = new Date();
+                const diff = now - startTime;
+                
+                const hours = Math.floor(diff / 3600000);
+                const minutes = Math.floor((diff % 3600000) / 60000);
+                const seconds = Math.floor((diff % 60000) / 1000);
+                
+                document.getElementById('conference-timer').textContent = 
+                    `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+            
+            // Simulation: le docteur rejoint après 5 secondes
+            setTimeout(() => {
+                document.getElementById('waiting-room').style.display = 'none';
+            }, 5000);
+            
+            // Mise à jour de la date et heure actuelles
+            const now = new Date();
+            const options = { day: '2-digit', month: 'short', year: 'numeric' };
+            document.getElementById('consultation-date').textContent = now.toLocaleDateString('fr-FR', options);
+            
+            const endTime = new Date(now.getTime() + 30 * 60000);
+            const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')} - ${endTime.getHours().toString().padStart(2, '0')}:${endTime.getMinutes().toString().padStart(2, '0')}`;
+            document.getElementById('consultation-time').textContent = timeStr;
+        });
+    </script>
+</body>
+</html>
